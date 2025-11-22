@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kemal Serkan YILDIRIM - Uygulamalar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      color: #212529;
+    }
+    header {
+      background-color: #1a1a1a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    header h1 {
+      font-size: 22px;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    .logo {
+      font-weight: 600;
+      font-size: 16px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+    .app-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin: 20px auto;
+      padding: 18px;
+      width: 90%;
+      max-width: 720px;
+      transition: transform 0.2s ease;
+    }
+    .app-container:hover {
+      transform: scale(1.01);
+    }
+    .app-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .app-info img {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      background-color: #f1f1f1;
+    }
+    .app-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .btn:hover {
+      opacity: 0.85;
+    }
+    .btn-detail {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-store {
+      background-color: #0070c9;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-store img {
+      width: 18px;
+      height: 18px;
+    }
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-top: 40px;
+      padding: 20px;
+      background: #f1f3f4;
+      border-top: 1px solid #ddd;
+    }
+    footer a {
+      color: #0070c9;
+      text-decoration: none;
+    }
+    @media (max-width: 600px) {
+      .app-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .app-buttons {
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Kemal Serkan YILDIRIM</h1>
+    <div class="logo">Uygulamalar</div>
+  </header>
+
+  <!-- Hatims -->
+  <div class="app-container" id="hatims">
+    <div class="app-info">
+      <img id="hatimsIcon" alt="Hatims">
+      <div>
+        <h2 id="hatimsName">Hatims</h2>
+        <p id="hatimsMainDesc">Dinimizde okunan çeşitli hatimlerin adetleri ve hesaplamalarının yapıldığı uygulama.</p>
+        <p id="hatimsDesc">Dinimizde okunan çeşitli hatimlerin adetleri ve hesaplamalarının yapıldığı uygulama.</p>
+      </div>
+    </div>
+    <div class="app-buttons">
+      <button class="btn btn-detail" onclick="window.location.href='hatims.html'">🔍 Detay</button>
+      <button class="btn btn-store" onclick="window.open('https://apps.apple.com/tr/app/hatims/id428374149','_blank')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="App Store"> Store
+      </button>
+    </div>
+  </div>
+
+  <!-- İçinde Ne Var -->
+  <div class="app-container" id="icindenevar">
+    <div class="app-info">
+      <img id="icindenevarIcon" alt="İçinde Ne Var">
+      <div>
+        <h2 id="icindenevarName">İçinde Ne Var</h2>
+        <p id="icindenevarMainDesc">Oluşturduğun listeleri QR ile takip edebildiğin uygulama.</p>
+        <p id="icindenevarDesc">Oluşturduğun listeleri QR ile takip edebildiğin uygulama.</p>
+      </div>
+    </div>
+    <div class="app-buttons">
+      <button class="btn btn-detail" onclick="window.location.href='icindenevar.html'">🔍 Detay</button>
+      <button class="btn btn-store" onclick="window.open('https://apps.apple.com/tr/app/i-%C3%A7indenevar/id6753892789','_blank')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="App Store"> Store
+      </button>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Kemal Serkan YILDIRIM — <a href="mailto:kemalserkanyildirim@gmail.com">İletişim</a>
+  </footer>
+
+  <script>
+    // Hatims - App Store Lookup API
+    fetch("https://itunes.apple.com/lookup?id=428374149&country=tr")
+      .then(response => response.json())
+      .then(data => {
+        const app = data.results[0];
+        document.getElementById("hatimsIcon").src = app.artworkUrl100.replace("100x100bb", "200x200bb");
+        document.getElementById("hatimsName").textContent = app.trackName;
+        document.getElementById("hatimsDesc").textContent = app.primaryGenreName + " • " + app.sellerName;
+      });
+
+    // İçinde Ne Var - App Store Lookup API
+    fetch("https://itunes.apple.com/lookup?id=6753892789&country=tr")
+      .then(response => response.json())
+      .then(data => {
+        const app = data.results[0];
+        document.getElementById("icindenevarIcon").src = app.artworkUrl100.replace("100x100bb", "200x200bb");
+        document.getElementById("icindenevarName").textContent = app.trackName;
+        document.getElementById("icindenevarDesc").textContent = app.primaryGenreName + " • " + app.sellerName;
+      });
+  </script>
+
+</body>
+</html>
