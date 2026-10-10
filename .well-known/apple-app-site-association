@@ -1,1 +1,1 @@
-{"applinks":{"details":[{"appIDs":["WZVL64ZRW7.com.mobileagenda.Tablom"],"components":[{"/":"/tablom/ogretmen/*"},{"/":"/tablom/ogretmen"},{"/":"/tablom/not/*"},{"/":"/tablom/not"}]}]}}
+{"applinks":{"details":[{"appIDs":["WZVL64ZRW7.com.mobileagenda.Tablom"],"components":[{"/":"/tablom/ogretmen/*","?":{"web":"1"},"exclude":true,"comment":"Uygulama ici tarayicida acilan ogretmen sayfasi"},{"/":"/tablom/ogretmen/*"},{"/":"/tablom/ogretmen"},{"/":"/tablom/not/*"},{"/":"/tablom/not"}]}]}}
