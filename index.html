@@ -154,6 +154,24 @@
     </div>
   </div>
 
+  <!-- Tablom -->
+  <div class="app-container" id="tablom">
+    <div class="app-info">
+      <img id="tablomIcon" alt="Tablom">
+      <div>
+        <h2 id="tablomName">Tablom</h2>
+        <p id="tablomMainDesc">Haftalık ders programını tek ekranda düzenleyip derslerden önce hatırlatma aldığın, haftalık planını öğretmeninle paylaşabildiğin tablet uygulaması.</p>
+        <p id="tablomDesc">Haftalık ders programını tek ekranda düzenleyip derslerden önce hatırlatma aldığın, haftalık planını öğretmeninle paylaşabildiğin tablet uygulaması.</p>
+      </div>
+    </div>
+    <div class="app-buttons">
+      <button class="btn btn-detail" onclick="window.location.href='tablom.html'">🔍 Detay</button>
+      <button class="btn btn-store" onclick="window.open('https://apps.apple.com/tr/app/tablom/id6761337202','_blank')">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="App Store"> Store
+      </button>
+    </div>
+  </div>
+
   <footer>
     © 2025 Kemal Serkan YILDIRIM — <a href="mailto:kemalserkanyildirim@gmail.com">İletişim</a>
   </footer>
@@ -177,6 +195,16 @@
         document.getElementById("icindenevarIcon").src = app.artworkUrl100.replace("100x100bb", "200x200bb");
         document.getElementById("icindenevarName").textContent = app.trackName;
         document.getElementById("icindenevarDesc").textContent = app.primaryGenreName + " • " + app.sellerName;
+      });
+
+    // Tablom - App Store Lookup API
+    fetch("https://itunes.apple.com/lookup?id=6761337202&country=tr")
+      .then(response => response.json())
+      .then(data => {
+        const app = data.results[0];
+        document.getElementById("tablomIcon").src = app.artworkUrl100.replace("100x100bb", "200x200bb");
+        document.getElementById("tablomName").textContent = app.trackName;
+        document.getElementById("tablomDesc").textContent = app.primaryGenreName + " • " + app.sellerName;
       });
   </script>
 
