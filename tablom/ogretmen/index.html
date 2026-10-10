@@ -304,6 +304,7 @@
         var note = $("note").value.trim();
         if (!note) return null;
         var reply = { v: 1, w: request.w, n: note };
+        if (request.i) reply.i = request.i;
         var teacher = $("teacher").value.trim();
         if (teacher) reply.t = teacher;
         if (request.s) reply.s = request.s;
