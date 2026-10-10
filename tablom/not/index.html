@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Tablom — Öğretmen Notu</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      margin: 0;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    main {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      padding: 1.75rem 1.75rem 1.25rem;
+      max-width: 520px;
+      width: 100%;
+    }
+    h1 { font-size: 1.4rem; margin: 0 0 0.25rem; }
+    .subtitle { color: #64748b; margin: 0 0 1rem; }
+    .note {
+      background: #f0fdfa;
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.5;
+      margin: 0 0 0.5rem;
+    }
+    .from { color: #0f766e; font-size: 0.9rem; font-weight: 600; margin: 0 0 1.25rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    a.button {
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 0.7rem 1.2rem;
+      text-decoration: none;
+      display: inline-flex;
+    }
+    .primary { background: #14b8a6; color: #fff; }
+    .secondary { background: #e2e8f0; color: #0f172a; }
+    .hint { color: #64748b; font-size: 0.85rem; line-height: 1.45; margin: 1rem 0 0; }
+    footer { text-align: center; color: #94a3b8; font-size: 0.8rem; margin-top: 1.25rem; }
+    footer a { color: #3b82f6; text-decoration: none; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="content" hidden>
+      <h1>Öğretmen Notu</h1>
+      <p class="subtitle" id="subtitle"></p>
+      <p class="note" id="note"></p>
+      <p class="from" id="from" hidden></p>
+      <div class="actions">
+        <a id="open" class="button primary" href="#">Tablom'da Aç</a>
+        <a class="button secondary" href="https://apps.apple.com/tr/app/tablom/id6761337202">App Store</a>
+      </div>
+      <p class="hint">"Tablom'da Aç"a dokunduğunuzda not, ilgili haftanın Öğretmen Notu alanına kendiliğinden eklenir. Tablom yüklü değilse önce App Store'dan indirin, ardından bu linke tekrar dokunun.</p>
+    </section>
+
+    <section id="error" hidden>
+      <h1>Link açılamadı</h1>
+      <p class="hint">Bu link eksik ya da bozuk görünüyor. Öğretmeninizden linki yeniden göndermesini isteyebilirsiniz.</p>
+    </section>
+
+    <footer>
+      <a href="../../tablom.html">Tablom</a> · <a href="../../tablom-privacy.html">Gizlilik Politikası</a>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+      function $(id) { return document.getElementById(id); }
+
+      function fromBase64Url(text) {
+        var base64 = text.replace(/-/g, "+").replace(/_/g, "/");
+        while (base64.length % 4) base64 += "=";
+        var binary = atob(base64);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+      }
+
+      function weekTitle(text) {
+        var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text || "");
+        if (!match) return null;
+        var start = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+        var end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        return start.getDate() + " " + MONTHS[start.getMonth()] + " - " + end.getDate() + " " + MONTHS[end.getMonth()] + " haftası";
+      }
+
+      var hash = window.location.hash.replace(/^#/, "");
+      try {
+        if (hash.charAt(0) !== "j") throw new Error("unknown");
+        var reply = JSON.parse(new TextDecoder().decode(fromBase64Url(hash.slice(1))));
+        var title = weekTitle(reply.w);
+        if (!title || !reply.n) throw new Error("invalid");
+        $("subtitle").textContent = [reply.s, title].filter(Boolean).join(" · ");
+        $("note").textContent = reply.n;
+        if (reply.t) {
+          $("from").textContent = "— " + reply.t;
+          $("from").hidden = false;
+        }
+        $("open").href = "tablom://not#" + hash;
+        $("content").hidden = false;
+      } catch (e) {
+        $("error").hidden = false;
+      }
+    })();
+  </script>
+</body>
+</html>

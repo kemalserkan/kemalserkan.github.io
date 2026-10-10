@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Tablom — Öğretmen Notu</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      margin: 0;
+      padding: 1.25rem;
+    }
+    main { max-width: 760px; margin: 0 auto; }
+    header { margin-bottom: 1rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    .subtitle { color: #64748b; margin: 0; }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    h2 { font-size: 1.05rem; margin: 0 0 0.75rem; }
+    ul.goals { list-style: none; margin: 0; padding: 0; }
+    ul.goals li { display: flex; gap: 0.5rem; padding: 0.35rem 0; line-height: 1.4; }
+    ul.goals li.done span.text { color: #64748b; text-decoration: line-through; }
+    .check { flex: none; width: 1.25rem; text-align: center; }
+    .days { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem; }
+    .day { background: #fdf2f8; border-radius: 10px; padding: 0.6rem 0.75rem; }
+    .day.weekend { background: #f5f3ff; }
+    .day b { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; }
+    .day p { margin: 0; font-size: 0.9rem; color: #334155; white-space: pre-wrap; word-wrap: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { padding: 0.45rem 0.4rem; text-align: center; border-bottom: 1px solid #e2e8f0; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: #64748b; font-weight: 600; }
+    tr.total td { font-weight: 700; border-bottom: none; }
+    .empty { color: #94a3b8; font-size: 0.9rem; margin: 0; }
+    label { display: block; font-weight: 600; font-size: 0.9rem; margin: 0 0 0.35rem; }
+    input, textarea {
+      width: 100%;
+      font: inherit;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.65rem 0.75rem;
+      background: #f8fafc;
+      color: inherit;
+    }
+    textarea { min-height: 150px; resize: vertical; }
+    .field { margin-bottom: 0.9rem; }
+    .counter { text-align: right; font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    button, a.button {
+      font: inherit;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      padding: 0.7rem 1.2rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .primary { background: #14b8a6; color: #fff; }
+    .whatsapp { background: #25d366; color: #fff; }
+    .secondary { background: #e2e8f0; color: #0f172a; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .hint { color: #64748b; font-size: 0.85rem; margin: 0.75rem 0 0; line-height: 1.45; }
+    .status { color: #10b981; font-weight: 600; font-size: 0.9rem; margin: 0.75rem 0 0; }
+    .error { text-align: center; padding: 2rem 1.25rem; }
+    .error p { color: #475569; line-height: 1.5; }
+    footer { text-align: center; color: #94a3b8; font-size: 0.8rem; margin: 1.5rem 0 0.5rem; }
+    footer a { color: #3b82f6; text-decoration: none; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="error" class="card error" hidden>
+      <h1>Link açılamadı</h1>
+      <p id="error-text">Bu link eksik ya da bozuk görünüyor. Öğrencinizden linki yeniden göndermesini isteyebilirsiniz.</p>
+    </section>
+
+    <div id="content" hidden>
+      <header>
+        <h1>Haftalık Plan</h1>
+        <p class="subtitle" id="subtitle"></p>
+      </header>
+
+      <section class="card">
+        <h2>Bu Haftaki Hedefler</h2>
+        <ul class="goals" id="goals"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Günlük Notlar</h2>
+        <div class="days" id="days"></div>
+      </section>
+
+      <section class="card" id="stats-card">
+        <h2>Soru Takibi</h2>
+        <table>
+          <thead><tr><th>Ders</th><th>Soru</th><th>Doğru</th><th>Yanlış</th><th>Net</th></tr></thead>
+          <tbody id="stats"></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Öğretmen Notu</h2>
+        <div class="field">
+          <label for="teacher">Adınız (isteğe bağlı)</label>
+          <input id="teacher" type="text" maxlength="60" placeholder="Örn. Ayşe Öğretmen" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="note">Notunuz</label>
+          <textarea id="note" maxlength="1000" placeholder="Öğrencinize bu hafta için notunuzu yazın."></textarea>
+          <div class="counter"><span id="count">0</span>/1000</div>
+        </div>
+        <div class="actions">
+          <button id="send" class="primary" disabled>Notu Gönder</button>
+          <a id="whatsapp" class="button whatsapp" href="#" hidden>WhatsApp ile Gönder</a>
+          <button id="copy" class="secondary" disabled>Linki Kopyala</button>
+        </div>
+        <p class="status" id="status" hidden></p>
+        <p class="hint">Gönderdiğiniz link öğrencinin Tablom uygulamasını açar ve notunuz ilgili haftanın Öğretmen Notu alanına kendiliğinden eklenir. Plan ve not yalnızca linkin içinde taşınır; hiçbir sunucuda saklanmaz.</p>
+      </section>
+    </div>
+
+    <footer>
+      <a href="../../tablom.html">Tablom</a> · <a href="../../tablom-privacy.html">Gizlilik Politikası</a>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var SUBJECTS = [
+        ["turkce", "Türkçe"],
+        ["matematik", "Matematik"],
+        ["fen", "Fen Bilimleri"],
+        ["inkilap", "İnkılap Tarihi"],
+        ["ingilizce", "İngilizce"],
+        ["din", "Din Kültürü"]
+      ];
+      var DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+      var MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+      var REPLY_BASE = "https://kemalserkan.github.io/tablom/not/#j";
+      var NAME_KEY = "tablom.teacherName";
+
+      var request = null;
+      var replyLink = null;
+      var weekText = "";
+
+      function $(id) { return document.getElementById(id); }
+
+      function showError(text) {
+        if (text) $("error-text").textContent = text;
+        $("error").hidden = false;
+        $("content").hidden = true;
+      }
+
+      function fromBase64Url(text) {
+        var base64 = text.replace(/-/g, "+").replace(/_/g, "/");
+        while (base64.length % 4) base64 += "=";
+        var binary = atob(base64);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return bytes;
+      }
+
+      function toBase64Url(bytes) {
+        var binary = "";
+        for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      }
+
+      async function inflate(bytes) {
+        var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+        return new Uint8Array(await new Response(stream).arrayBuffer());
+      }
+
+      async function decodePayload(hash) {
+        var kind = hash.charAt(0);
+        var bytes = fromBase64Url(hash.slice(1));
+        if (kind === "z") {
+          if (typeof DecompressionStream === "undefined") throw new Error("unsupported");
+          bytes = await inflate(bytes);
+        } else if (kind !== "j") {
+          throw new Error("unknown");
+        }
+        return JSON.parse(new TextDecoder().decode(bytes));
+      }
+
+      function parseWeek(text) {
+        var match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text || "");
+        if (!match) return null;
+        return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      }
+
+      function isoWeek(date) {
+        var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        var day = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - day);
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+      }
+
+      function weekTitle(start) {
+        var end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        return isoWeek(start) + ". Hafta · " + start.getDate() + " " + MONTHS[start.getMonth()]
+          + " - " + end.getDate() + " " + MONTHS[end.getMonth()];
+      }
+
+      function formatNet(value) {
+        return (Math.round(value * 100) / 100).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+      }
+
+      function cell(row, text) {
+        var td = document.createElement("td");
+        td.textContent = text;
+        row.appendChild(td);
+      }
+
+      function render(start) {
+        weekText = weekTitle(start);
+        $("subtitle").textContent = [request.s, weekText].filter(Boolean).join(" · ");
+
+        var goals = $("goals");
+        (request.g || []).forEach(function (goal) {
+          var li = document.createElement("li");
+          if (goal.x) li.className = "done";
+          var check = document.createElement("span");
+          check.className = "check";
+          check.textContent = goal.x ? "✅" : "⬜️";
+          var text = document.createElement("span");
+          text.className = "text";
+          text.textContent = goal.t;
+          li.appendChild(check);
+          li.appendChild(text);
+          goals.appendChild(li);
+        });
+        if (!goals.children.length) {
+          goals.outerHTML = '<p class="empty">Hedef eklenmemiş.</p>';
+        }
+
+        var days = $("days");
+        DAYS.forEach(function (name, index) {
+          var div = document.createElement("div");
+          div.className = index >= 5 ? "day weekend" : "day";
+          var title = document.createElement("b");
+          var date = new Date(start);
+          date.setDate(date.getDate() + index);
+          title.textContent = name + " · " + date.getDate() + " " + MONTHS[date.getMonth()];
+          var text = document.createElement("p");
+          var note = ((request.d || [])[index] || "").trim();
+          text.textContent = note || "—";
+          div.appendChild(title);
+          div.appendChild(text);
+          days.appendChild(div);
+        });
+
+        var tbody = $("stats");
+        var sum = { t: 0, c: 0, w: 0, any: false };
+        SUBJECTS.forEach(function (subject) {
+          var stat = (request.q || {})[subject[0]];
+          if (!stat || (stat.t == null && stat.c == null && stat.w == null)) return;
+          var row = document.createElement("tr");
+          var correct = stat.c || 0;
+          var wrong = stat.w || 0;
+          cell(row, subject[1]);
+          cell(row, stat.t == null ? "—" : stat.t);
+          cell(row, stat.c == null ? "—" : stat.c);
+          cell(row, stat.w == null ? "—" : stat.w);
+          cell(row, formatNet(correct - wrong / 3));
+          tbody.appendChild(row);
+          sum.t += stat.t || 0;
+          sum.c += correct;
+          sum.w += wrong;
+          sum.any = true;
+        });
+        if (sum.any) {
+          var total = document.createElement("tr");
+          total.className = "total";
+          cell(total, "Toplam");
+          cell(total, sum.t);
+          cell(total, sum.c);
+          cell(total, sum.w);
+          cell(total, formatNet(sum.c - sum.w / 3));
+          tbody.appendChild(total);
+        } else {
+          $("stats-card").hidden = true;
+        }
+
+        $("content").hidden = false;
+      }
+
+      function buildReply() {
+        var note = $("note").value.trim();
+        if (!note) return null;
+        var reply = { v: 1, w: request.w, n: note };
+        var teacher = $("teacher").value.trim();
+        if (teacher) reply.t = teacher;
+        if (request.s) reply.s = request.s;
+        replyLink = REPLY_BASE + toBase64Url(new TextEncoder().encode(JSON.stringify(reply)));
+        return replyLink;
+      }
+
+      function shareMessage(link) {
+        return "Merhaba, " + weekText + " planına notumu yazdım. Tablom'a eklemek için bu linke dokun:\n" + link;
+      }
+
+      function showStatus(text) {
+        $("status").textContent = text;
+        $("status").hidden = false;
+      }
+
+      function updateButtons() {
+        var note = $("note").value;
+        $("count").textContent = note.length;
+        var hasNote = note.trim().length > 0;
+        $("send").disabled = !hasNote;
+        $("copy").disabled = !hasNote;
+        var link = hasNote ? buildReply() : null;
+        $("whatsapp").hidden = !hasNote || !!navigator.share;
+        if (link) $("whatsapp").href = "https://wa.me/?text=" + encodeURIComponent(shareMessage(link));
+      }
+
+      function setUpForm() {
+        try { $("teacher").value = localStorage.getItem(NAME_KEY) || ""; } catch (e) {}
+        $("teacher").addEventListener("input", function () {
+          try { localStorage.setItem(NAME_KEY, $("teacher").value.trim()); } catch (e) {}
+          updateButtons();
+        });
+        $("note").addEventListener("input", updateButtons);
+
+        $("send").addEventListener("click", async function () {
+          var link = buildReply();
+          if (!link) return;
+          var message = shareMessage(link);
+          if (navigator.share) {
+            try {
+              await navigator.share({ text: message });
+              showStatus("Not gönderildi. Öğrenciniz linke dokunduğunda not Tablom'a eklenecek.");
+            } catch (e) {
+              if (e && e.name === "AbortError") return;
+              window.location.href = "https://wa.me/?text=" + encodeURIComponent(message);
+            }
+          } else {
+            window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
+          }
+        });
+
+        $("copy").addEventListener("click", async function () {
+          var link = buildReply();
+          if (!link) return;
+          try {
+            await navigator.clipboard.writeText(shareMessage(link));
+            showStatus("Mesaj ve link kopyalandı. Öğrencinize yapıştırarak gönderebilirsiniz.");
+          } catch (e) {
+            window.prompt("Linki kopyalayın:", link);
+          }
+        });
+
+        updateButtons();
+      }
+
+      async function start() {
+        var hash = window.location.hash.replace(/^#/, "");
+        if (!hash) {
+          showError("Bu sayfa, öğrencinizin Tablom'dan gönderdiği linkle açılır. Linkin tamamının kopyalandığından emin olun.");
+          return;
+        }
+        try {
+          request = await decodePayload(hash);
+        } catch (e) {
+          if (e && e.message === "unsupported") {
+            showError("Tarayıcınız bu linki açamıyor. Lütfen linki güncel bir tarayıcıda (Safari, Chrome) açın.");
+          } else {
+            showError();
+          }
+          return;
+        }
+        var startDate = parseWeek(request && request.w);
+        if (!startDate) {
+          showError();
+          return;
+        }
+        render(startDate);
+        setUpForm();
+      }
+
+      start();
+    })();
+  </script>
+</body>
+</html>
