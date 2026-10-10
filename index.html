@@ -50,19 +50,33 @@
       display: flex;
       align-items: center;
       gap: 15px;
+      flex: 1;
+      min-width: 0;
     }
     .app-info img {
       width: 80px;
       height: 80px;
+      flex-shrink: 0;
       border-radius: 18px;
       background-color: #f1f1f1;
     }
     .app-buttons {
       display: flex;
       gap: 10px;
+      flex-shrink: 0;
+      margin-left: 15px;
     }
     .btn {
-      padding: 8px 14px;
+      box-sizing: border-box;
+      width: 96px;
+      height: 40px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-size: 14px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
@@ -79,9 +93,6 @@
     .btn-store {
       background-color: #0070c9;
       color: white;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     .btn-store img {
       width: 18px;
@@ -107,6 +118,7 @@
       }
       .app-buttons {
         margin-top: 10px;
+        margin-left: 0;
       }
     }
   </style>
